@@ -1,7 +1,7 @@
 import React from 'react'
 import Link from 'gatsby-link'
 import "./Header.css"
-
+import StripeCheckout from 'react-stripe-checkout'
 
 class Header extends React.Component {
 	constructor(props) {
@@ -26,6 +26,24 @@ class Header extends React.Component {
 		}
 	}
 
+	handlePurchase = (token) => {
+		const amount = 5000
+		const description = "give me money"
+
+		const bodyObject = {
+			tokenId: token.id,
+			email: token.email,
+			name: token.name,
+			description,
+			amount
+		}
+
+		fetch("http://localhost:9000/stripe-charge", {
+			method: 'POST',
+			body: JSON.stringify(bodyObject)
+		})
+	}
+
 	render() {
 		return (
 			<div className={this.state.hasScrolled ? "Header HeaderScrolled" : "Header"}>
@@ -34,7 +52,13 @@ class Header extends React.Component {
 					<Link to="/courses">Courses</Link>
 					<Link to="/downloads">Downloads</Link>
 					<Link to="/workshops">Workshops</Link>
-					<Link to="/buy"><button>Buy</button></Link>
+					<StripeCheckout
+						amount={5000}
+						image={require('../images/logo-designcode.svg')}
+						token={this.handlePurchase}
+						stripeKey={''}>
+						<button>Buy</button>
+					</StripeCheckout>
 				</div>
 			</div>
 		)
